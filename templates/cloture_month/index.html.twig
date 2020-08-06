@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+    <head><meta charset="gb18030">
+      
+      <title>{% block title %}Cloture du Mois{% endblock %}</title>
+      {% block stylesheets %}{% endblock %}
+      <style type="text/css" media="screen,print">
+        * {
+          font-size: 1.1rem;
+        }
+        li {
+          margin:2px;
+        }
+        .table {
+          width: 100%; border-collapse: collapse; border: 2px solid rgb(200,200,200);
+          letter-spacing: 1px;
+        }
+        .table th, .table td {
+          border: 1px solid #ddd; padding: 8px;
+        }
+        .table tr:nth-child(even){ background-color: #f2f2f2;}
+        .table th{
+          padding-top: 12px;
+          padding-bottom: 12px;
+          text-align: left;
+          background-color: #4CAF50; color: white;
+        }
+        .child {
+          padding-left: 12px;
+          background-color: #4CAF50;
+        }
+        .break{
+          page-break-before: always;
+        }
+      </style>
+    </head>
+    <body>
+      <div style="display:flex;align-items:flex-end;">
+        <div><img src={{ asset('images/POSLOGO.JPG')}} alt="logo" width="150" height="auto" /></div>
+        <div style="flex-grow:1;">
+          <h3 style="text-align:center;text-decoration:underline">CLOTURE DU MOIS</h3>
+        </div>
+      </div>
+      <div><strong>Mois : </strong> {{ cloture.year }}-{{ cloture.month }}</div>
+      <div><strong>Date de la Clôture  : </strong> {{ cloture.created|date('Y-m-d')}}</div>
+      <div><strong>Agent : </strong> {{ cloture.operator.name }} {{ cloture.operator.lastname }}</div>
+      <br />
+      <hr />
+      {% include('cloture_month/_gestation_cash.html.twig') %}
+      <br />
+      <hr />
+      {% include('cloture_month/_stock.html.twig') %}
+      <br />
+      <hr />
+      {% include('cloture_month/_expence.html.twig') %}
+      <br />
+      <hr />
+      {% include('cloture_month/_customer.html.twig') %}
+      <br />
+      <hr />
+      {% include('cloture_month/_Kpis.html.twig') %}
+      <br />
+      <hr />
+      {% include('cloture_month/_pnl.html.twig') %}
+    </body>
+</html>

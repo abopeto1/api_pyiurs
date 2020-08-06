@@ -1,0 +1,12 @@
+
+###> symfony/framework-bundle ###
+/.env.local
+/.env.local.php
+/.env.*.local
+/mercure_0.9.0_Windows_x86_64.zip
+/mercure
+/node_modules
+/public/bundles/
+/var/
+/vendor/
+###< symfony/framework-bundle ###

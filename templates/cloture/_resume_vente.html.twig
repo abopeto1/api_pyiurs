@@ -1,0 +1,84 @@
+<style type="text/css" media="screen,print">
+  .row {
+    width: 100%; 
+  }
+  .row .col {
+    width: 50%; float:left;
+  }
+  #details, #expences {
+    width: 100%; border-collapse: collapse; border: 2px solid rgb(200,200,200);
+    letter-spacing: 1px;
+  }
+  #details th,#details td,#expences th, #expences td{
+    border: 1px solid rgb(190,190,190);font-size: 1rem;
+  }
+  .break{
+    page-break-before: always;
+  }
+</style>
+{# variables #}
+{% set totalCash, totalCredit, totalPaiement, totalExchange, totalService = 0, 0, 0, 0, 0 %}
+{%  if billsMonth %}
+  {% for b in billsMonth %}
+    {% if b.created|date('Ymd') == cloture.created|date('Ymd') %}
+      {% if b.typePaiement.id == 1 %}
+        {% set totalCash = totalCash + b.net %}
+      {% elseif b.typePaiement.id == 2 %}
+        {% set totalCredit = totalCredit + b.accompte %}
+      {% elseif b.typePaiement.id == 3 %}
+        {% set totalPaiement = totalPaiement + b.net %}
+      {% elseif b.typePaiement.id == 4 %}
+        {% set totalExchange = totalExchange + b.net %}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+{% endif %}
+
+{% if cloture.services %}
+  {% for s in cloture.services %}
+    {% if s.currency == "USD" %}
+      {% set totalService = totalService + s.amount %}
+    {% else %}
+      {% set totalService = totalService + (s.amount/1750) %}
+    {% endif %}
+  {% endfor %}
+{% endif %}
+{% set totalVente = totalCash + totalCredit + totalPaiement + totalExchange + totalService %}
+
+<div class="row">
+  <div class="col"><strong>Date</strong></div>
+  <div>: {{ cloture.created|date("d-m-Y") }}</div>
+</div>
+<hr />
+<div class="row">
+  <div class="col"><strong>Cloturé Par</strong></div>
+  <div>: {{ cloture.operator.name }} {{ cloture.operator.lastname }}</div>
+</div>
+<div class="row">
+  <div class="col"><strong>Total Vente Cash</strong></div>
+  <div>: {{ totalCash|round }} $</div>
+</div>
+<div class="row">
+  <div class="col"><strong>Total des Accompte</strong></div>
+  <div>: {{ totalCredit|round }} $</div>
+</div>
+<div class="row">
+  <div class="col"><strong>Total des Paiements Crédit</strong></div>
+  <div>: {{ totalPaiement|round }} $</div>
+</div>
+<div class="row">
+  <div class="col"><strong>Total Excédent Echange</strong></div>
+  <div>: {{ totalExchange|round }} $</div>
+</div>
+<div class="row">
+  <div class="col"><strong>Solde</strong></div>
+  <div>: {{ totalVente|round }} $</div>
+</div>
+<div class="row">
+  <div class="col"><strong>Service</strong></div>
+  <div>: {{ totalService|round }} $</div>
+</div>
+<div class="row">
+  <div class="col"><strong>Commentaires </strong></div>
+  <div>: {{ cloture.comment }}</div>
+</div>

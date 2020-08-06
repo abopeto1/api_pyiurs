@@ -1,0 +1,37 @@
+
+<div>
+  <h3>3.	Gestion de dépenses</h3>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>CC</th>
+        <th>Centre de Cout</th>
+        <th>Budget</th>
+        <th>Dépense</th>
+        <th>%</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% if expenceAccountCategories %}
+      {% for eac in expenceAccountCategories %}
+        <tr>
+          <td>{{ eac.code }}</td>
+          <td>{{ eac.name }}</td>
+          <td>0</td>
+          <td>
+          {% set total = 0 %}
+          {% for ec in eac.expenceAccounts %}
+            {% for e in ec.expences %}
+              {% if e.currency == "USD" %} {% set total = total + e.montant %} {% endif %}
+              {% if e.currency == "CDF" %} {% set total = total + e.montant/e.taux %} {% endif %}
+            {% endfor %}
+          {% endfor %}
+          {{ total|round }}
+          </td>
+          <td>0 %</td>
+        </tr>
+      {% endfor %}
+    {% endif %}
+    </tbody>
+  </table>
+</div>

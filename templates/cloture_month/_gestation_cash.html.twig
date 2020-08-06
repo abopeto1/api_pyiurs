@@ -1,0 +1,71 @@
+{% set totalCash = 0  %} {% set totalCredit = 0 %} {%  set totalPaiement = 0 %} {%  set totalExchange = 0 %}
+{%  if cloture.bills %}
+  {% for b in cloture.bills %}
+    {% if b.typePaiement.id == 1 %}
+      {% set totalCash = totalCash + b.net %}
+    {% elseif b.typePaiement.id == 2 %}
+      {% set totalCredit = totalCredit + b.accompte %}
+    {% elseif b.typePaiement.id == 3 %}
+      {% set totalPaiement = totalPaiement + b.net %}
+    {% elseif b.typePaiement.id == 4 %}
+      {% set totalExchange = totalExchange + b.net %}
+    {% endif %}
+  {% endfor %}
+{% endif %}
+{% set totalVente = totalCash+totalCredit+totalPaiement+totalExchange %}
+
+{% set divers = 0 %} {% set bank = 0 %}
+{%  if cloture.credits %}
+  {% for c in cloture.credits %}
+    {% if c.typeCredit == 'divers' %}
+      {% if c.currency == 'USD' %} {% set divers = divers + c.amount %}{% endif %}
+      {% if c.currency == 'EUR' %} {% set divers = divers + c.amount/c.tauxEuro %}{% endif %}
+      {% if c.currency == 'CDF' %} {% set divers = divers + c.amount/c.taux %}{% endif %}
+    {% endif %}
+    {% if c.typeCredit == 'bank' %}
+      {% if c.currency == 'USD' %} {% set divers = divers + c.amount %}{% endif %}
+      {% if c.currency == 'EUR' %} {% set divers = divers + c.amount/c.tauxEuro %}{% endif %}
+      {% if c.currency == 'CDF' %} {% set divers = divers + c.amount/c.taux %}{% endif %}
+    {% endif %}
+  {% endfor %}
+{% endif %}
+
+{% set cash = 0 %}
+{%  if cloture.cashins %}
+  {% for c in cloture.cashins %}
+    {% if c.currency == 'USD' %}{% set cash = cash + c.amount %}{% endif %}
+    {% if c.currency == 'CDF' %}{% set cash = cash + c.amount/c.taux %}{% endif %}
+  {% endfor %}
+{% endif %}
+
+{% set expenceMonth = 0 %}
+{% for e in cloture.expences %}
+    {% if e.currency == 'USD' %}
+      {% set expenceMonth = expenceMonth + e.montant %}
+    {% else %}
+      {% set expenceMonth = expenceMonth + (e.montant/e.taux) %}
+    {% endif %}
+{% endfor %}
+
+<div>
+  <h3>1.	Gestation de Cash</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Label</th>
+        <th>Valeur</th>
+      </tr>
+    </thead>
+  </table>
+  <ul>
+    <li>Total Facture Cash : {{ totalCash }} $.</li>
+    <li>Total acompte Facture Crédit : {{ totalCredit }} $.</li>
+    <li>Total Paiement Crédit : {{ totalPaiement }} $.</li>
+    <li>Total Excedent Facture Echange : {{ totalExchange }} $.</li>
+    <li>Total Crédit Divers : {{ divers }} $.</li>
+    <li>Total Crédit Banque : {{ bank }} $.</li>
+    <li>Total Entrée Cash : {{ cash }} $.</li>
+    <li>Total CASH : {{ totalVente + divers + bank + cash }} $.</li>
+    <li>Total Dépense : {{ expenceMonth|round }} $.</li>
+  </ul>
+</div>

@@ -1,0 +1,147 @@
+{% set openStock = 0 %} {% set openStockValue = 0 %} {% set addStock = 0 %} {% set addStockValue = 0 %}
+{% set sellStock = 0 %} {% set sellStockValue = 0 %} {% set sellStockFemme = 0 %} {% set sellStockValueFemme = 0 %}
+{% set sellStockKids = 0 %} {% set sellStockValueKids = 0 %} {% set endStock = 0 %} {% set endStockValue = 0 %}
+{% set sellStockValueKidsNet , sellStockValueFemmeNet = 0, 0 %}
+{% set increment = 0 %}
+
+{% for s in segments %}
+  {%  if s.products %}
+    {% for p in s.products %}
+      {% if (p.stock.available and p.stock.created|date('Ym') < cloture.year~cloture.month) or (
+        p.stock.available == false and (
+          p.billDetails.get(p.billDetails|length-1) and
+            p.billDetails.get(p.billDetails|length-1).created|date('Ym') == cloture.year~cloture.month
+            ))
+      %}
+        {% set openStock = openStock + 1 %} {% set openStockValue = openStockValue + p.caa + p.pu %}
+      {% endif %}
+      {% if p.stock.created|date('Ym') == cloture.year~cloture.month %}
+        {% set addStock = addStock + 1 %} {% set addStockValue = addStockValue + p.caa + p.pu %}
+      {% endif %}
+      {% if p.stock.available == false and p.billDetails.get(p.billDetails|length-1) and p.billDetails.get(p.billDetails|length-1).created|date('Ym') == cloture.year~cloture.month %}
+        {% if p.segment.id == 2 %}
+          {%
+            set sellStockFemme, sellStockValueFemme, sellStockValueFemmeNet = sellStockFemme + 1, sellStockValueFemme + p.caa + p.pu, sellStockValueFemmeNet + p.billDetails.get(p.billDetails|length-1).net
+          %}
+        {% endif %}
+        {% if p.segment.id == 1 %}
+          {%
+            set sellStockKids,sellStockValueKids,sellStockValueKidsNet = sellStockKids + 1,sellStockValueKids + p.caa + p.pu,sellStockValueKidsNet + p.billDetails.get(p.billDetails|length-1).net
+          %}
+        {% endif %}
+        {% set sellStock, sellStockValue = sellStock + 1, sellStockValue + p.caa + p.pu %}
+      {% endif %}
+      {% if (p.stock.available and p.stock.created|date('Ym') <= cloture.year~cloture.month) or (
+        p.stock.available == false and (
+          p.billDetails.get(p.billDetails|length-1) and
+            p.billDetails.get(p.billDetails|length-1).created|date('Ym') > cloture.year~cloture.month
+            ))
+      %}
+        {% set endStock,endStockValue = endStock + 1, endStockValue + p.caa + p.pu %}
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+{% endfor %}
+
+<div>
+  <h3>2.	Gestion de Stock</h3>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Gestion de Stock</th>
+        <th>Qte</th>
+        <th>Valeur</th>
+        <th>Valeur Vente</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Stock d'ouverture</td><td>{{openStock}}</td><td colspan="2">{{openStockValue|round}} $</td>
+      </tr>
+      <tr>
+        <td>Stock Ajouté</td><td>{{addStock}}</td><td colspan="2">{{addStockValue|round}} $</td>
+      </tr>
+      <tr>
+        <td>Stock Vendus</td><td>{{sellStock}}</td><td colspan="2">{{sellStockValue|round}} $</td>
+      </tr>
+      <tr>
+        <td class="child">Stock Vendus Femme</td><td>{{sellStockFemme}}</td><td>{{sellStockValueFemme|round}} $</td><td>{{sellStockValueFemmeNet|round}} $</td>
+      </tr>
+      <tr>
+        <td class="child">Stock Vendus Enfant</td><td>{{sellStockKids}}</td><td>{{sellStockValueKids|round}} $</td><td>{{sellStockValueKidsNet|round}} $</td>
+      </tr>
+      <tr>
+        <td>Stock de Fermeture</td><td>{{endStock}}</td><td colspan="2">{{endStockValue|round}} $</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<div>
+  {% for s in segments %}
+    <h4>Segment {{s.name}}</h4>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Stock d'ouverture</th>
+          <th>Stock Ajouté</th>
+          <th>Stock Vendus</th>
+          <th>Stock de Fermeture</th>
+          <th>Comptage Physique</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% set openStockTotal, addStockTotal,sellStockTotal,endStockTotal  = 0,0,0,0 %}
+        {% for t in s.types %}
+          {% set openStock, addStock,sellStock,endStock  = 0,0,0,0 %}
+          {% for p in s.products %}
+            {% if p.type.id == t.id %}
+              {% if(p.stock.available and p.stock.created|date('Ym') < cloture.year~cloture.month) or (
+                p.stock.available == false and (
+                  p.billDetails.get(p.billDetails|length-1) and
+                    p.billDetails.get(p.billDetails|length-1).created|date('Ym') == cloture.year~cloture.month
+                    ))
+              %}
+                {% set openStock, openStockTotal = openStock + 1, openStockTotal+1 %}
+              {% endif %}
+              {% if p.stock.created|date('Ym') == cloture.year~cloture.month %}
+                {% set addStock, addStockTotal = addStock + 1, addStockTotal + 1 %}
+              {% endif %}
+              {% if p.stock.available == false and p.billDetails.get(p.billDetails|length-1) and p.billDetails.get(p.billDetails|length-1).created|date('Ym') == cloture.year~cloture.month %}
+                {% set sellStock, sellStockTotal = sellStock + 1, sellStockTotal + 1 %}
+              {% endif %}
+              {% if (p.stock.available and p.stock.created|date('Ym') <= cloture.year~cloture.month) or (
+                p.stock.available == false and (
+                  p.billDetails.get(p.billDetails|length-1) and
+                    p.billDetails.get(p.billDetails|length-1).created|date('Ym') > cloture.year~cloture.month
+                    ))
+              %}
+                {% set endStock,endStockTotal = endStock + 1, endStockTotal + 1 %}
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+          <tr>
+            <td>{{ t.name }}</td>
+            <td>{{ openStock }}</td>
+            <td>{{ addStock }}</td>
+            <td>{{ sellStock }}</td>
+            <td>{{ endStock }}</td>
+            <td></td>
+          <tr>
+          <br />
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr>
+          <th>Total</th>
+          <th>{{ openStockTotal }}</th>
+          <th>{{ addStockTotal }}</th>
+          <th>{{ sellStockTotal }}</th>
+          <th>{{ endStockTotal }}</th>
+          <th></th>
+        </tr>
+      </tfoot>
+    </table>
+    <br />
+  {% endfor %}
+</div>

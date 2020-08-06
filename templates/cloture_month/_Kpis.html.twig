@@ -1,0 +1,21 @@
+{% set totalVente = 0 %}
+{%  if cloture.bills %}
+  {% for b in cloture.bills %}
+    {% if b.typePaiement.id == 2 %}
+      {% set totalVente = totalVente + b.accompte %}
+    {% else %}
+      {% set totalVente = totalVente + b.net %}
+    {% endif %}
+  {% endfor %}
+{% endif %}
+
+<div>
+  <h3>5.	Autres KPIS</h3>
+  <ul>
+    <li>
+      Moyenne Vente Par Jour : {{ (totalVente/26)|round(2) }}
+    </li>
+    <li>Qté : {{ cloture.bills|length }} Factures</li>
+    <li>Moyenne Facture Par Jour: {{ (cloture.bills|length/26)|round(2) }}</li>
+  <ul>
+</div>

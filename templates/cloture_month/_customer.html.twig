@@ -1,0 +1,129 @@
+{% set realCustomers, active, oldActive, newActive = [], [], [], [] %}
+{% if customers %}
+  {% for c in customers %}
+    {% if c.created|date('Ym') <= cloture.year~cloture.month %}
+      {% set realCustomers = realCustomers|merge([c]) %}
+    {% endif %}
+  {% endfor %}
+
+  {% for c in realCustomers %}
+    {% set break = false %}
+      {% for b in c.bills if not break %}
+        {% if b.clotureMonth is not null and b.clotureMonth.id == cloture.id %}
+          {% set active = active|merge([c]) %}
+          {% if c.created|date('Ym') == cloture.year~cloture.month %}
+            {% set newActive = newActive|merge([c]) %}
+            {% set break = true %}
+          {% endif %}
+          {% if c.created|date('Ym') < cloture.year~cloture.month %}
+            {% set oldActive = oldActive|merge([c]) %}
+            {% set break = true %}
+          {% endif %}
+          {% set break = true %}
+        {% endif %}
+      {% endfor %}
+
+  {% endfor %}
+{% endif %}
+
+{% set totalActive, totalActiveNew, totalActiveOld = 0, 0, 0 %}
+
+{% for c in active %}
+  {% for b in c.bills %}
+    {% if b.typePaiement.id == 2 %}
+      {% if b.created|date('Ym') == cloture.year~cloture.month %}
+        {% if c.created|date('Ym') == cloture.year~cloture.month %}
+          {% set totalActiveNew = totalActiveNew + b.accompte %}
+        {% endif %}
+        {% if c.created|date('Ym') < cloture.year~cloture.month %}
+          {% set totalActiveOld = totalActiveOld + b.accompte %}
+        {% endif %}
+        {% set totalActive = totalActive + b.accompte %}
+      {% endif %}
+    {% else %}
+      {% if b.created|date('Ym') == cloture.year~cloture.month %}
+        {% if c.created|date('Ym') == cloture.year~cloture.month %}
+          {% set totalActiveNew = totalActiveNew + b.net %}
+        {% endif%}
+        {% if c.created|date('Ym') < cloture.year~cloture.month %}
+          {% set totalActiveOld = totalActiveOld + b.net %}
+        {% endif%}
+        {% set totalActive = totalActive + b.net %}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+{% endfor %}
+
+{%
+  set arr = [
+    {
+      name:"Base de client 30jrs", prcent:((active|length * 100)/realCustomers|length)|round(2), nbr:active|length,
+      tot: totalActive, arpu: ( active|length == 0 ? 0 :totalActive/active|length )|round(2)
+    },
+    {
+      name:"Nouveau Client", prcent:((newActive|length * 100)/realCustomers|length)|round(2),
+      nbr:newActive|length, tot: totalActiveNew,
+      arpu: newActive|length == 0 ? 0 :(totalActiveNew/newActive|length)|round(2)
+    },
+    {
+      name:"Ancien Client", prcent:((oldActive|length * 100)/realCustomers|length)|round(2),
+      nbr:oldActive|length, tot: totalActiveOld,
+      arpu: oldActive|length == 0 ? 0 : (totalActiveOld/oldActive|length)|round(2)
+    },
+  ]
+%}
+
+<div>
+  <h2>4.	Gestion de Client</h3>
+  <h4>Base de client : {{ realCustomers|length }}</h4>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Gestion des clients</th>
+        <th>%</th>
+        <th>#</th>
+        <th>Valeur d’achat</th>
+        <th>ARPU</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for a in arr %}
+      <tr>
+        <td>{{ a.name }}</td>
+        <td>{{ a.prcent }} %</td>
+        <td>{{ a.nbr}}</td>
+        <td>{{ a.tot }}</td>
+        <td>{{ a.arpu }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  <br />
+
+  <h4>Classification client</h4>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Catégorie</th>
+        <th>Base d’ouverture</th>
+        <th>Base entrée</th>
+        <th>Base sortie</th>
+        <th>Base de Fermeture</th>
+        <th>Action / Commentaire</th>
+      </tr>
+    </thead>
+    {% set categories = [{name:"Gold"},{name:"Silver"},{name:"Prime"},{name:"Ordinaire"}] %}
+    <tbody>
+      {% for c in categories %}
+      <tr>
+        <td>{{ c.name }}</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>

@@ -1,0 +1,204 @@
+{# variables #}
+{% set totalVente = 0  %}
+{%  if billsMonth %}
+  {% for b in billsMonth %}
+    {% if b.created|date('Ymd') == cloture.created|date('Ymd') %}
+      {% if b.typePaiement.id == 2 %}
+        {% set totalVente = totalVente + b.accompte  %}
+      {% else %}
+        {% set totalVente = totalVente + b.net  %}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+{% endif %}
+
+{% set cumulMonth = 0  %}
+{%  if billsMonth %}
+  {% for b in billsMonth %}
+    {% if b.created|date('Ymd') < cloture.created|date('Ymd') %}
+      {% if b.typePaiement.id == 2 %}
+        {% set cumulMonth = cumulMonth + b.accompte  %}
+      {% else %}
+        {% set cumulMonth = cumulMonth + b.net  %}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+{% endif %}
+
+{% set sellMonth = cumulMonth + totalVente  %}
+
+{% set pa = 0 %} {% set ca = 0 %}
+{%  if billsMonth %}
+  {% for bill in billsMonth %}
+    {% if bill.created|date('Ymd') <= cloture.created|date('Ymd') %}
+      {% for billDetail in bill.billDetails %}
+        {% if billDetail.product %}
+          {% set pa = pa + billDetail.product.pu %}
+          {% set ca = ca + billDetail.product.caa %}
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+  {% endfor %}
+{% endif %}
+
+{% set cash = 0 %}
+{%  if cashin %}
+  {% for c in cashin %}
+    {% if c.created|date('Ymd') <= cloture.created|date('Ymd') %}
+        {% if c.currency == "CDF" %}
+            {% set cash = cash + (c.amount/c.taux) %}
+        {% else %}
+            {% set cash = cash + c.amount %}
+        {% endif %}
+    {% endif %}
+  {% endfor %}
+{% endif %}
+
+{% set divers = 0 %} {% set bank = 0 %}
+{%  if credits %}
+  {% for c in credits %}
+    {% if c.created|date('Ymd') <= cloture.created|date('Ymd') and c.type == 'divers' %}
+      {% set divers = divers + c.amount %}
+    {% elseif c.created|date('Ymd') <= cloture.created|date('Ymd') and c.type == 'bank' %}
+      {% set bank = bank + c.amount %}
+    {% endif %}
+{% endfor %}
+{% endif %}
+
+{% set totalServiceMonth = 0 %}
+{%  if cloture.services %}
+  {% for s in cloture.services %}
+    {% if s.created|date('Ymd') <= cloture.created|date('Ymd') %}
+      {% if s.currency == "USD" %}
+        {% set totalServiceMonth = totalServiceMonth + s.amount %}
+      {% else %}
+        {% set totalServiceMonth = totalServiceMonth + (s.amount/1900) %}
+      {% endif %}
+    {% endif %}
+{% endfor %}
+{% endif %}
+
+{% set totalIn = divers + bank + cash + sellMonth + totalServiceMonth %}
+
+{% set expence = 0 %}
+{% for e in cloture.expences %}
+  {% if e.periode != cloture.created|date('Y-m') %}
+    {% set expence = expence + e.montant %}
+  {% endif %}
+{% endfor %}
+
+{% set expenceMonth = 0 %}
+{% for e in expences %}
+  {% if e.created|date('Ymd') <= cloture.created|date('Ymd') %}
+    {% if e.currency == 'USD' %}
+      {% set expenceMonth = expenceMonth + e.montant %}
+    {% else %}
+      {% set expenceMonth = expenceMonth + (e.montant/e.taux) %}
+    {% endif %}
+  {% endif %}
+{% endfor %}
+
+{% set totalDebitPrevious = 0 %}
+{% for d in debits %}
+  {% if d.created|date('Ymd') < cloture.created|date('Ymd') %}
+    {% if d.currency == 'USD' %}
+      {% set totalDebitPrevious = totalDebitPrevious + d.amount %}
+    {% else %}
+      {% set totalDebitPrevious = totalDebitPrevious + (d.amount/1900) %}
+    {% endif %}
+  {% endif %}
+{% endfor %}
+
+{% set totalDebitMonth = 0 %}
+{% for d in debits %}
+  {% if d.created|date('Ymd') <= cloture.created|date('Ymd') %}
+    {% if d.currency == 'USD' %}
+      {% set totalDebitMonth = totalDebitMonth + d.amount %}
+    {% else %}
+      {% set totalDebitMonth = totalDebitMonth + (d.amount/1900) %}
+    {% endif %}
+  {% endif %}
+{% endfor %}
+
+{% set cumulCash = cumulMonth + cashPrevious + creditPrevious - expencePrevious - totalDebitPrevious %}
+
+<table style="width:100%">
+  <tbody>
+    <tr>
+      <td style="width:50%;font-size:1.3rem;">CUMUL CASH J-1</td>
+      <td style="width:50%;font-size:1.3rem;">: {{ cumulCash|round }} $</td>
+    </tr>
+    <tr><td><hr /></td><td><hr /></td></tr>
+    <tr>
+      <td style="width:50%;font-size:1.3rem;">Vente du Jour</td>
+      <td style="width:50%;font-size:1.3rem;">: {{ totalVente|round }} $</td>
+    </tr>
+    <tr>
+      <td style="width:50%;font-size:1.3rem;">Total Vente J-1</td>
+      <td style="width:50%;font-size:1.3rem;">: {{ cumulMonth|round }} $</td>
+    </tr>
+    <tr><td><hr /></td><td><hr /></td></tr>
+    <tr>
+      <td style="width:50%;font-size:1.3rem;color:blue;">Total Vente du mois</td>
+      <td style="width:50%;font-size:1.3rem;color:blue;">: {{ sellMonth|round }} $</td>
+    </tr>
+    <tr>
+      <td style="width:50%;font-size:1.3rem;font-style:italic">Total P.A</td>
+      <td style="width:50%;font-size:1.3rem;font-style:italic">:{{ pa|round }} $</td>
+    </tr>
+    <tr>
+      <td style="width:50%;font-size:1.3rem;font-style:italic">Total C.A</td>
+      <td style="width:50%;font-size:1.3rem;font-style:italic">:{{ ca|round }} $</td>
+    </tr>
+    <tr>
+      <td style="width:50%;font-size:1.3rem;font-style:italic"><b>Total PAT<b></td>
+      <td style="width:50%;font-size:1.3rem;font-style:italic">:{{ (ca + pa)|round }} $</td>
+    </tr>
+    <tr>
+      <td style="width:50%;font-size:1.3rem;"><b>Autres Revenus</b></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td style="width:50%;font-size:1.3rem;">Entree Cash (Hors Vente)</td>
+      <td style="width:50%;font-size:1.3rem;">:{{ cash|round }} $</td>
+    </tr>
+    <tr>
+      <td style="width:50%;font-size:1.3rem;">Entree Prets Divers</td>
+      <td style="width:50%;font-size:1.3rem;">:{{ divers|round }} $</td>
+    </tr>
+    <tr>
+      <td style="width:50%;font-size:1.3rem;">Entree Pret Bancaire</td>
+      <td style="width:50%;font-size:1.3rem;">:{{ bank|round }} $</td>
+    </tr>
+    <tr>
+      <td style="width:50%;font-size:1.3rem;">Total Service</td>
+      <td style="width:50%;font-size:1.3rem;">:{{ totalServiceMonth|round }} $</td>
+    </tr>
+    <tr>
+      <td style="width:50%;font-size:1.3rem;color:blue;"><b>Total Entree</b></td>
+      <td style="width:50%;font-size:1.3rem;color:blue;">: {{ totalIn|round }} $</td>
+    </tr>
+    <tr><td><hr /></td><td><hr /></td></tr>
+    <tr>
+      <td style="width:50%;font-size:1.3rem;"><b>Dépenses</b></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td style="width:50%;font-size:1.3rem;">Dépense du jour</td>
+      <td style="width:50%;font-size:1.3rem;">:{{ expence|round }} $</td>
+    </tr>
+    <tr>
+      <td style="width:50%;font-size:1.3rem;"><b>Total Dépense</b></td>
+      <td style="width:50%;font-size:1.3rem;">:{{ expenceMonth|round }} $</td>
+    </tr>
+    <tr>
+      <td style="width:50%;font-size:1.3rem;"><b>Total Débit</b></td>
+      <td style="width:50%;font-size:1.3rem;">:{{ totalDebitMonth|round }} $</td>
+    </tr>
+    <tr><td><hr /></td><td><hr /></td></tr>
+    <tr>
+      <td style="width:50%;font-size:1.3rem;color:blue;"><b>Solde</b></td>
+      <td style="width:50%;font-size:1.3rem;color:blue;">: {{ (totalIn - expenceMonth - totalDebitMonth)|round }} $</td>
+    </tr>
+  </tbody>
+</table>

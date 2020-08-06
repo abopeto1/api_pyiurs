@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>{% block title %}Facture {{bill.numero}}{% endblock %}</title>
+        {% block stylesheets %}
+        <style type="text/css" media="print">
+          * {
+            font-size: 5;
+          }
+          table, table th, table td {
+            width: 100%;letter-spacing: 1px; font-size: 1.15rem;
+          }
+          #details th,#details td{
+            font-size: 3rem; text-align: center;
+          }
+          .break{
+            page-break-before: always;
+          }
+        </style>
+        {% endblock %}
+        {% set totalPv = 0 %}
+    </head>
+    <body>
+      <img src={{ asset('images/POSLOGO.JPG')}} alt="logo" width="300" height="auto" />
+      <table style="width:100%">
+        <tbody>
+          <tr>
+            <td><strong>N°Facture</strong></td>
+            <td>: {{ bill.numero }}</td>
+          </tr>
+          <tr><td><strong>Client</strong></td><td>: {{ bill.customer.name }}</td>
+          {% if bill.customer.categorie %}
+            <tr><td><strong>Statut</strong></td><td>: Client {{ bill.customer.categorie.name }}</td>
+          {% endif %}
+          <tr><td><strong>Points Restants</strong></td><td>: {{ bill.customer.points }} points</td>
+          <tr><td><strong>T/P</strong></td><td>: {{ bill.typePaiement.label }}</td>
+          {% if (bill.typePaiement.id == 3) or (bill.typePaiement.id == 4) %}
+            <tr><td><strong>Facture Réf</strong></td><td>: {{ bill.billReference.numero }}</td>
+          {% endif %}
+          <tr><td><strong>Date</strong></td><td>: {{ bill.created|date("d m Y H\:i\:s") }}</td>
+          <tr><td><strong>Vendeur(se)</strong></td><td>: {{ bill.operator.name }}  {{ bill.operator.lastname }}</td>
+        </tbody>
+      </table>
+      <hr />
+      <table style="margin-top: 20px;" id="details">
+        <thead>
+          <tr>
+            <td style="border-bottom:1px solid black"><strong>Codebarre</strong></td>
+            <td style="border-bottom:1px solid black"><strong>Description<strong></td>
+            <td style="border-bottom:1px solid black"><strong>Qte</strong></td>
+            <td style="border-bottom:1px solid black"><strong>PU</strong></td>
+            <td style="border-bottom:1px solid black"><strong>TTC</strong></td>
+          </tr>
+        </thead>
+        <tbody>
+          {% for billDetail in bill.billDetails %}
+            <tr>
+              <td style="border-bottom:1px dashed black">{{ billDetail.product.codebarre }}</td>
+              <td style="border-bottom:1px dashed black;width:25%">{{ billDetail.product.description }}</td>
+              <td style="border-bottom:1px dashed black">{{ billDetail.qte }}</td>
+              <td style="border-bottom:1px dashed black">{{ billDetail.net }}</td>
+              <td style="border-bottom:1px dashed black">{{ billDetail.net * billDetail.qte }}</td>
+              {% set totalPv = totalPv + (billDetail.product.pv * billDetail.qte) %}
+          {% endfor %}
+        </tbody>
+      </table>
+      <table style="margin-top: 20px;">
+        <tbody>
+            <tr>
+                <td style="width: 200px;text-align: left;"><strong>Total Facture</strong></td>
+                <td style="width: 200px;text-align: right;">: {{ totalPv|round(1) }} $</td>
+          </tr>
+          <tr>
+                <td style="width: 200px;text-align: left;"><strong>Total Reduction</strong></td>
+                <td style="width: 200px;text-align: right;">: {{ (bill.net-totalPv)|round(1) }} $</td>
+          </tr>
+          <tr>
+            <td style="width: 200px;text-align: left;"><strong>Total Net</strong></td>
+            <td style="width: 200px;text-align: right;">: {{ bill.net}} $</td>
+          </tr>
+          {% if bill.typePaiement.id == 2 %}
+            <tr>
+              <td style="width: 200px;text-align: left;"><strong>Accompte</strong></td>
+              <td style="width: 200px;text-align: right;">: {{ bill.accompte}} $</td>
+            </tr>
+
+              <tr>
+                <td style="width: 200px;text-align: left;"><strong>Reste</strong></td>
+                <td style="width: 200px;text-align: right;">: {{ bill.reste }} $</td>
+              </tr>
+          {% endif %}
+        </tbody>
+      </table>
+      <footer style="display:flex;justify-content: center;font-size: .6rem;margin-top:10px;">
+        <p style="text-align:center;">Boutique Pyiurs, sur l’avenue de la Libération (ex 24 Nov) en diagonal de la Maison Schengen</p>
+        <p style="text-align:center;">Le service client Pyiurs est disponible du lundi au samedi de 9h00 à 21h00. Réponse par WhatsApp ou SMS sous 01h00 hors week-end et jours fériés.</p>
+        <p style="text-align:center;">Tél : +243899900151</p>
+        <p style="text-align:center;">Nous vous remercions et attendons vivement votre prochaine visite</p>
+        <p style="text-align:center;">#pyiursteam</p>
+      </footer>
+    </body>
+</html>

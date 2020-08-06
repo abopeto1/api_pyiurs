@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>{% block title %}Expence - {{expence.code}}{% endblock %}</title>
+        {% block stylesheets %}{% endblock %}
+    </head>
+    <body>
+      <img src={{asset("images/POSLOGO.JPG")}} alt="logo" width="300" height="auto" />
+      <h2 style="text-align:center">BON DE SORTIE</h2>
+      <br />
+      <table style="width:100%">
+        <tbody>
+          <tr><td><strong>N° Sortie</strong></td><td>: {{ expence.code }}</td>
+          <tr><td><strong>Date</strong></td><td>: {{ expence.created|date("d m Y H\:i\:s") }}</td>
+          <tr><td><strong>Validé le : </strong></td><td>: {{ expence.validated|date("d m Y H\:i\:s") }}</td>
+          <tr><td><strong>Fournisseur</strong></td><td>: {{ expence.provider.name }}</td>
+          <tr><td><strong>Compte</strong></td><td>: {{ expence.expenceCompte.name }}({{ expence.expenceCompte.code }})</td>
+          <tr><td><strong>Motif</strong></td><td>: {{ expence.motif }}</td>
+          <tr><td><strong>Montant</strong></td><td>: {{ expence.montant }} {{expence.currency}}</td>
+        </tbody>
+      </table>
+      <br />
+      <hr />
+      <footer style="display:flex;justify-content: center;font-size: 12px;margin-top:10px;">
+        <p style="text-align:center;">Av. de la liberation (ex 24 Nov) en diagonale de la Maison Schengen</p>
+        <p style="text-align:center;">Tél : +243899900151</p>
+      </footer>
+    </body>
+</html>
