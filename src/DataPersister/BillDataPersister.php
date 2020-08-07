@@ -27,34 +27,58 @@ final class BillDataPersister implements ContextAwareDataPersisterInterface
         $data
             ->setCreated(new \DateTime)
             ->setNumero($numero);
-        foreach($data->getBillDetails() as $billDetail)
-        {
-            $billDetail->setCreated(new \DateTime());
-            $this->_entity_manager->persist($billDetail);
 
-            if ($billDetail->getProduct()->getPv() - $billDetail->getNet() <= 2) {
-                $point = ($billDetail->getNet() / 10) * $billDetail->getQte();
-                $billDetail->setPoint($point);
-                $customer = $data->getCustomer();
-                $customer->setPoints($data->getCustomer()->getPoints() + $point);
-            } else {
-                $billDetail->setPoint(0);
-            }
-
-            $stock = $billDetail->getProduct()->getStock();
-            if($stock->getAvailableQte() < $billDetail->getQte())
+        if($data->getTypePaiement()->getId() !== 3){
+            foreach($data->getBillDetails() as $billDetail)
             {
-                return new Response("Stock not Available", Response::HTTP_BAD_REQUEST);
-            }
-            
-            $outQte = $stock->getOutQte() + $billDetail->getQte();
-            $stock->setOutQte( $outQte);
+                $billDetail->setCreated(new \DateTime());
+                $this->_entity_manager->persist($billDetail);
 
-            $this->_entity_manager->persist($stock);
-            if($stock->getAvailableQte() < 1){
-                $stock->setAvailable(false);
+                if ($billDetail->getProduct()->getPv() - $billDetail->getNet() <= 2) {
+                    $point = ($billDetail->getNet() / 10) * $billDetail->getQte();
+                    $billDetail->setPoint($point);
+                    $customer = $data->getCustomer();
+                    $customer->setPoints($data->getCustomer()->getPoints() + $point);
+                } else {
+                    $billDetail->setPoint(0);
+                }
+
+                $stock = $billDetail->getProduct()->getStock();
+
+                if($stock->getAvailableQte() < $billDetail->getQte())
+                {
+                    return new Response("Stock not Available", Response::HTTP_BAD_REQUEST);
+                }
+                
+                $outQte = $stock->getOutQte() + $billDetail->getQte();
+                $stock->setOutQte( $outQte);
+
+                $this->_entity_manager->persist($stock);
+                if($stock->getAvailableQte() < 1){
+                    $stock->setAvailable(false);
+                }
             }
         }
+
+        if(3 === $data->getTypePaiement()->getId())
+        {
+            $billReference = $data->getBillReference();
+            if($data->getNet() > $billReference->getReste())
+            {
+                return new Response("Net lager than reste", Response::HTTP_BAD_REQUEST);
+            }
+
+            if(0 >= $data->getNet())
+            {
+                return new Response("Net don't be equal or lower to 0", Response::HTTP_BAD_REQUEST);
+            }
+
+            $reste = $data->getNet() - $billReference->getReste();
+            $billReference->setReste($reste);
+
+            $this->_entity_manager->persist($billReference);
+        }
+        
         $this->_entity_manager->persist($data);
 
         // Apply the persistence
