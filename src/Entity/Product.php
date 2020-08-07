@@ -745,18 +745,14 @@ class Product
         return $this;
     }
     
+    /**
+     * @Groups({"product:read"})
+     */
     public function getSegment(): ?string
     {
-        return $this->segment;
+        return $this->getType()->getSegment()->getName();
     }
 
-    public function setSegment(?string $segment)
-    {
-        $this->segment = $segment;
-
-        return $this;
-    }
-    
     public function getPostType(): ?string
     {
         return $this->postType;

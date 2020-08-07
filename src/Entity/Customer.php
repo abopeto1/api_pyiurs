@@ -24,6 +24,10 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *      "appointment_customer"={
  *          "method"="GET",
  *          "normalization_context"={"groups"={"appointment:read"}}
+ *      },
+ *      "bill_customer"={
+ *          "method"="GET",
+ *          "normalization_context"={"groups"={"bill:read"}}
  *      }
  *  }
  * )
@@ -38,14 +42,14 @@ class Customer
      * @ORM\Column(type="integer")
      * @Serializer\Groups({"customer","list_customer","list_bills","bill_detail","agent",
      * "one_bill","users","type_paiement"})
-     * @Groups({"appointment:read"})
+     * @Groups({"appointment:read","bill:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=15,name="tel",unique=true)
      * @Serializer\Groups({"customer","bill_detail","list_customer","list_bills","users","type_paiement","agent"})
-     * @Groups({"appointment:read"})
+     * @Groups({"appointment:read","bill:read"})
      */
     private $telephone;
 
@@ -53,7 +57,7 @@ class Customer
      * @ORM\Column(type="string", length=100,name="nom")
      * @Serializer\Groups({"customer","list_bills","one_bill","bill_detail","report_cloture"
      * ,"agent","list_customer","users","type_paiement"})
-     * @Groups({"appointment:read"})
+     * @Groups({"appointment:read","bill:read"})
      */
     private $name;
 

@@ -7,9 +7,17 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
- * @ApiResource()
+ * @ApiResource(
+ *  subresourceOperations={
+ *      "bill_type_paiement"={
+ *          "method"="GET",
+ *          "normalization_context"={"groups"={"bill:read"}}
+ *      }
+ *  }
+ * )
  * @ORM\Entity(repositoryClass="App\Repository\TypePaiementRepository")
  */
 class TypePaiement
@@ -19,12 +27,14 @@ class TypePaiement
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      * @Serializer\Groups({"list_bills","one_bill","bill_detail","clotures","users","type_paiement","customer","agent"})
+     * @Groups({"bill:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Serializer\Groups({"list_bills","one_bill","bill_detail","report_cloture","users","type_paiement","customer","agent"})
+     * @Groups({"bill:read"})
      */
     private $label;
 

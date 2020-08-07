@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
 use ApiPlatform\Core\Annotation\ApiSubresource;
+use ApiPlatform\Core\Annotation\ApiFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -14,6 +16,10 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * @ApiResource(
  *  normalizationContext={"groups"={"bill:read"}},
  *  denormalizationContext={"groups"={"bill:write"}}
+ * )
+ * @ApiFilter(
+ *      SearchFilter::Class,
+ *      properties={"created":"partial"}
  * )
  * @ORM\Entity(repositoryClass="App\Repository\BillRepository")
  * @ORM\Table(name="sell_synth")
@@ -99,6 +105,7 @@ class Bill
     private $billDetails;
 
     /**
+     * @ApiSubresource
      * @ORM\ManyToOne(targetEntity="App\Entity\Customer", inversedBy="bills")
      * @ORM\JoinColumn(nullable=false)
      * @Serializer\Groups({"list_bills","one_bill","bill_detail","report_cloture","users","type_paiement"})
@@ -136,6 +143,7 @@ class Bill
     private $clotureMonth;
 
     /**
+     * ApiSubresource
      * @ORM\ManyToOne(targetEntity="App\Entity\TypePaiement", inversedBy="bills")
      * @ORM\JoinColumn(nullable=false)
      * @Serializer\Groups({"list_bills","one_bill","sells_reports","report_cloture","customer","clotures","users","agent"})
