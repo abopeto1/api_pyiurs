@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
 use ApiPlatform\Core\Annotation\ApiSubresource;
+use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -114,8 +115,10 @@ class Bill
     private $customer;
 
     /**
+     * @ApiProperty(readableLink=false, writableLink=false)
      * @ORM\ManyToOne(targetEntity="App\Entity\Bill", inversedBy="bills")
      * @Serializer\Groups({"list_bills","one_bill"})
+     * @Groups({"bill:read","bill:write"})
      */
     private $bill_reference;
 
