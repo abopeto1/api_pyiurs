@@ -309,6 +309,9 @@ class Bill
         return $this;
     }
 
+    /**
+     * @Groups({"bill:read","bill:write"})
+     */
     public function getBillReference(): ?self
     {
         return $this->bill_reference;

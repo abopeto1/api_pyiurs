@@ -63,6 +63,11 @@ final class BillDataPersister implements ContextAwareDataPersisterInterface
         if(3 === $data->getTypePaiement()->getId())
         {
             $billReference = $data->getBillReference();
+            if(!$billReference)
+            {
+                return new Response("Bill reference null", Response::HTTP_BAD_REQUEST);
+            }
+            
             if($data->getNet() > $billReference->getReste())
             {
                 return new Response("Net lager than reste", Response::HTTP_BAD_REQUEST);
