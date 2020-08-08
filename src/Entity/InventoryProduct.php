@@ -2,10 +2,12 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
+ * @ApiResource()
  * @ORM\Entity(repositoryClass="App\Repository\InventoryProductRepository")
  * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="product_inventory", columns={"inventory_id","product_id"})})
  */

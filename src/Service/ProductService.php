@@ -12,10 +12,24 @@ class  ProductService
         $this->_em = $em;
     }
 
-    public function getAvailableProduct()
+    public function getAvailableProducts()
     {
-        $products = $this->_em->getRepository('App:Product')->findByStockAvailable();
-        return $products;
+        $products = $this->_em->getRepository('App:Product')->findAll();
+        
+        $availables = [];
+        foreach($products as $product)
+        {
+            if(
+                $product->getStock() &&
+                $product->getStock()->getAvailable() &&
+                $product->getType()->getSegment()->getDepartment()->getId() === 1
+            )
+            {
+                $availables[] = $product;
+            }
+        }
+        
+        return $availables;
     }
 
     /**

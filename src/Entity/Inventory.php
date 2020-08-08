@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Annotation\ApiSubresource;
 use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\OrderFilter;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -13,7 +14,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ApiResource(
- *      normalizationContext={"groups"={"inventory:read"}}
+ *      normalizationContext={"groups"={"inventory:read"}},
  * )
  * @ApiFilter(
  *      OrderFilter::class,
@@ -42,6 +43,7 @@ class Inventory
     private $created;
 
     /**
+     * @ApiSubresource
      * @ORM\OneToMany(targetEntity="App\Entity\InventoryProduct", mappedBy="inventory")
      * @Serializer\Groups({"inventory"})
      */
