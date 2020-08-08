@@ -73,7 +73,7 @@ final class BillDataPersister implements ContextAwareDataPersisterInterface
                 return new Response("Net don't be equal or lower to 0", Response::HTTP_BAD_REQUEST);
             }
 
-            $reste = $data->getNet() - $billReference->getReste();
+            $reste = $billReference->getReste() - $data->getNet();
             $billReference->setReste($reste);
 
             $this->_entity_manager->persist($billReference);
