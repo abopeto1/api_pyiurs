@@ -475,6 +475,14 @@ class DashboardController extends AbstractController
 
             // KPIS
             $bills = $this->getDoctrine()->getRepository(Bill::class)->findByMonth($month);
+            $totalDays = 0; $i =1;
+            while($i <= date('j')){
+                $begin = \mktime(0,0,0,date('m'), $i, date('Y'));
+                if(date('w', $begin) != 0){
+                    $totalDays++;
+                }
+                $i++;
+            }
             $total= 0;
             $dates = [];
 
@@ -487,9 +495,9 @@ class DashboardController extends AbstractController
                 }
             }
 
-            $dashboard[$value]['Moyenne Vente Par Jour'] = $total == 0 ? 0 : intval($total/(max($dates)));
+            $dashboard[$value]['Moyenne Vente Par Jour'] = $total == 0 || $totalDays == 0 ? 0 : intval($total/$totalDays);
             $dashboard[$value]['Nombres de Factures'] = count($bills);
-            $dashboard[$value]['Moyenne Facture Par Jour'] = $count($bills) == 0 ? 0 : intval($count($bills)/max(dates));
+            $dashboard[$value]['Moyenne Facture Par Jour'] = count($bills) == 0 || $totalDays == 0 ? 0 : intval(count($bills)/$totalDays);
 
             return new JsonResponse([$dashboard]);
         }
@@ -540,6 +548,16 @@ class DashboardController extends AbstractController
         if($id == 3){
             $bills = $this->getDoctrine()->getRepository(Bill::class)->findByMonth($date);
             $average_by_order = 0; $total = 0; $countBills = count($bills);
+
+            $totalDays = 0; $i =1;
+            while($i <= date('j')){
+                $begin = \mktime(0,0,0,date('m'), $i, date('Y'));
+                if(date('w', $begin) != 0){
+                    $totalDays++;
+                }
+                $i++;
+            }
+
             foreach($bills as $bill){
                 if($bill->getTypePaiement()->getId() == 2){
                     $total += $bill->getAccompte();
@@ -547,8 +565,8 @@ class DashboardController extends AbstractController
                     $total += $bill->getNet();
                 }
             }
-            $average_by_order = $countBills == 0 ? 0 : intval($countBills/ intval(date('d')));
-            $average_by_day = $total / intval(date('d'));
+            $average_by_order = $countBills == 0 || $totalDays == 0 ? 0 : intval($countBills / $totalDays);
+            $average_by_day = $total / $totalDays;
 
             $dashboard['id'] = 3;
             $dashboard['value'][0]['name'] = "Moyenne de Vente par Facture";

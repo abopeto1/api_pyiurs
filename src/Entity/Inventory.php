@@ -14,6 +14,12 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ApiResource(
+ *      subresourceOperations={
+ *          "inventory_product_inventory"={
+ *              "method"="GET",
+ *              "normalization_context"={"groups"={"inventory_product:read"}}
+ *          }
+ *      },
  *      normalizationContext={"groups"={"inventory:read"}},
  * )
  * @ApiFilter(
@@ -31,7 +37,7 @@ class Inventory
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      * @Serializer\Groups({"list_inventories","inventory"})
-     * @Groups({"inventory:read"})
+     * @Groups({"inventory:read","inventory_product:read"})
      */
     private $id;
 

@@ -45,6 +45,10 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *              "method"="GET",
  *              "normalization_context"={"groups"={"type:write"}},
  *          },
+ *          "inventory_product_product"={
+ *              "method"="GET",
+ *              "normalization_context"={"groups"={"inventory_product:read"}},
+ *          }
  *      },
  *      normalizationContext={"groups"={"product:read"}},
  *      denormalizationContext={"groups"={"product:write"}}
@@ -75,7 +79,10 @@ class Product
      * @Serializer\Groups({"products","warehouses","stock","productByCodebarre","one_bill","product","list_products"
      * ,"bill_detail","report_cloture","warehouses","one_sold","product_one_sold","solde","customer","list_bills",
      * "resume","stock_resume","one_warehouse","inventories","inventory","segments","type_stats"})
-     * @Groups({"product:read","appointment:read","billDetail:read","product_sample:read","type:read"})
+     * @Groups({
+     *      "product:read","appointment:read","billDetail:read","product_sample:read",
+     *      "type:read","inventory_product:read"
+     * })
      */
     private $id;
 
@@ -83,7 +90,7 @@ class Product
      * @ORM\Column(type="string", length=50, nullable=true)
      * @Serializer\Groups({"products","stock","productByCodebarre","list_products","sells_reports",
      * "report_cloture","one_sold","product_one_sold","solde","one_warehouse","inventory"})
-     * @Groups({"product:read","delivery:write"})
+     * @Groups({"product:read","delivery:write","inventory_product:read"})
      */
     private $cat;
 
@@ -92,7 +99,7 @@ class Product
      * @Serializer\Groups({"products","productByCodebarre","one_bill","list_products","sells_reports",
      * "report_cloture","one_sold","product_one_sold","solde","one_warehouse","inventory","segments",
      * "list_bills"})
-     * @Groups({"product:read","product:write","appointment:read","delivery:write"})
+     * @Groups({"product:read","product:write","appointment:read","delivery:write","inventory_product:read"})
      */
     private $codebarre;
 
@@ -109,7 +116,7 @@ class Product
      * @Serializer\Groups({"products","warehouses","stock","productByCodebarre","one_bill","list_products",
      * "bill_detail","warehouses","one_sold","product_one_sold","solde","list_bills","resume","stock_resume",
      * "one_warehouse","type_stats"})
-     * @Groups({"product:read","product:write","delivery:write"})
+     * @Groups({"product:read","product:write","delivery:write","inventory_product:read"})
      */
     private $pu;
 
@@ -135,7 +142,7 @@ class Product
      * "report_cloture","one_sold","product_one_sold","solde","list_bills","one_warehouse","inventory"})
      * @Groups({
      *      "product:read","product:write","appointment:read","billDetail:read",
-     *      "product_sample:read","delivery:write"
+     *      "product_sample:read","delivery:write","inventory_product:read"
      * })
      */
     private $description;
@@ -218,7 +225,7 @@ class Product
      * @ORM\JoinColumn(nullable=false)
      * @Serializer\Groups({"products","stock","productByCodebarre","one_bill","product","list_products",
      * "sells_reports","one_sold","product_one_sold","solde","customer","one_warehouse","inventory","warehouses" })
-     * @Groups({"product:read","product:write","billDetail:read"})
+     * @Groups({"product:read","product:write","billDetail:read","inventory_product:read"})
      */
     private $type;
 
@@ -277,7 +284,7 @@ class Product
     private $delivery;
     
     /**
-     * @Groups({"delivery:write"})
+     * @Groups({"delivery:write","inventory_product:read"})
      */
     private $segment;
 

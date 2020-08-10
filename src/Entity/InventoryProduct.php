@@ -3,11 +3,32 @@
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Annotation\ApiSubresource;
+use ApiPlatform\Core\Annotation\ApiFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
- * @ApiResource()
+ * @ApiResource(
+ *      normalizationContext={"groups"={"inventory_product:read"}}
+ * )
+ * @ApiFilter(
+ *      SearchFilter::Class,
+ *      properties={
+ *          "product.codebarre"="iexact",
+ *          "product.type"="exact",
+ *          "inventory"="exact",
+ *      }
+ * )
+ * @ApiFilter(
+ *      BooleanFilter::Class,
+ *      properties={
+ *          "status"
+ *      }
+ * )
  * @ORM\Entity(repositoryClass="App\Repository\InventoryProductRepository")
  * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="product_inventory", columns={"inventory_id","product_id"})})
  */
@@ -18,31 +39,38 @@ class InventoryProduct
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      * @Serializer\Groups({"inventory"})
+     * @Groups({"inventory_product:read"})
      */
     private $id;
 
     /**
+     * @ApiSubresource
      * @ORM\ManyToOne(targetEntity="App\Entity\Inventory", inversedBy="inventoryProducts")
      * @ORM\JoinColumn(nullable=false)
+     * @Groups({"inventory_product:read"})
      */
     private $inventory;
 
     /**
+     * @ApiSubresource
      * @ORM\ManyToOne(targetEntity="App\Entity\Product", inversedBy="inventoryProducts")
      * @ORM\JoinColumn(nullable=false)
      * @Serializer\Groups({"inventory"})
+     * @Groups({"inventory_product:read"})
      */
     private $product;
 
     /**
      * @ORM\Column(type="boolean")
      * @Serializer\Groups({"inventory"})
+     * @Groups({"inventory_product:read"})
      */
     private $status;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
      * @Serializer\Groups({"inventory"})
+     * @Groups({"inventory_product:read"})
      */
     private $updated;
 
