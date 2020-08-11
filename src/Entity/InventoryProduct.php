@@ -30,7 +30,11 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *      }
  * )
  * @ORM\Entity(repositoryClass="App\Repository\InventoryProductRepository")
- * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="product_inventory", columns={"inventory_id","product_id"})})
+ * @ORM\Table(
+ *  uniqueConstraints={
+ *      @ORM\UniqueConstraint(name="product_inventory", columns={"inventory_id","product_id"})
+ *  }
+ * )
  */
 class InventoryProduct
 {

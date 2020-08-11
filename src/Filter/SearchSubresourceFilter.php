@@ -11,6 +11,7 @@
 
 namespace App\Filter;
 
+use ApiPlatform\Core\Api\FilterInterface;
 use ApiPlatform\Core\Bridge\Doctrine\Common\Filter\SearchFilterInterface;
 use ApiPlatform\Core\Bridge\Doctrine\Common\Filter\SearchFilterTrait;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\AbstractContextAwareFilter;
@@ -34,7 +35,7 @@ use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
  *
  * @author Arnold Bopeto <abopeto1@gmail.com>
  */
-class SearchSubresourceFilter extends AbstractContextAwareFilter implements SearchFilterInterface
+class SearchSubresourceFilter extends AbstractContextAwareFilter implements SearchFilterInterface, FilterInterface
 {
     use SearchFilterTrait;
 

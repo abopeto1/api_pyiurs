@@ -2,12 +2,17 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
+ * @ApiResource(
+ *      normalizationContext={"groups"={"order:read"}}
+ * )
  * @ORM\Entity(repositoryClass="App\Repository\OrderRepository")
  * @ORM\Table(name="product_order")
  */
@@ -18,72 +23,84 @@ class Order
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      * @Serializer\Groups({"order","order_echeance"})
+     * @Groups({"order:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="datetime")
      * @Serializer\Groups({"order","order_echeance"})
+     * @Groups({"order:read"})
      */
     private $created;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Serializer\Groups({"order","order_echeance"})
+     * @Groups({"order:read"})
      */
     private $code;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      * @Serializer\Groups({"order"})
+     * @Groups({"order:read"})
      */
     private $description;
 
     /**
      * @ORM\Column(type="float")
      * @Serializer\Groups({"order","order_echeance"})
+     * @Groups({"order:read"})
      */
     private $amount;
 
     /**
      * @ORM\Column(type="string", length=5)
      * @Serializer\Groups({"order","order_echeance"})
+     * @Groups({"order:read"})
      */
     private $currency;
 
     /**
      * @ORM\Column(type="date", nullable=true)
      * @Serializer\Groups({"order"})
+     * @Groups({"order:read"})
      */
     private $delivery_date;
 
     /**
      * @ORM\Column(type="boolean")
      * @Serializer\Groups({"order"})
+     * @Groups({"order:read"})
      */
     private $deliveried;
 
     /**
      * @ORM\Column(type="float", nullable=true)
      * @Serializer\Groups({"order"})
+     * @Groups({"order:read"})
      */
     private $weight;
 
     /**
      * @ORM\Column(type="float", nullable=true)
      * @Serializer\Groups({"order"})
+     * @Groups({"order:read"})
      */
     private $transfert_costs;
 
     /**
      * @ORM\Column(type="float", nullable=true)
      * @Serializer\Groups({"order"})
+     * @Groups({"order:read"})
      */
     private $fret_costs;
 
     /**
      * @ORM\Column(type="float", nullable=true)
      * @Serializer\Groups({"order","order_echeance"})
+     * @Groups({"order:read"})
      */
     private $taux;
 
@@ -96,6 +113,7 @@ class Order
     /**
      * @ORM\Column(type="integer", nullable=true)
      * @Serializer\Groups({"order"})
+     * @Groups({"order:read"})
      */
     private $nbr_articles;
 

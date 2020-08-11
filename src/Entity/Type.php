@@ -26,7 +26,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *      subresourceOperations={
  *          "product_type"={
  *              "method"="GET",
- *              "normalization_context"={"groups"={"product:read","billDetail:read"}}
+ *              "normalization_context"={"groups"={"product:read","billDetail:read","inventory_product:read"}}
  *          }
  *      },
  *      normalizationContext={"groups"={"type:read"}},
@@ -49,7 +49,7 @@ class Type
      * @ORM\Column(type="integer")
      * @Serializer\Groups({"type","products","one_warehouse","stock","customer","inventory","segments","one_sold",
      * "type_stats","warehouses" })
-     * @Groups({"type:read","product:read","billDetail:read"})
+     * @Groups({"type:read","product:read","billDetail:read","inventory_product:read"})
      */
     private $id;
 
@@ -65,7 +65,7 @@ class Type
      * @Serializer\Groups({"type","products","one_warehouse","stock","productByCodebarre","list_products",
      * "sells_reports",
      * "product_one_sold","customer","inventory","segments","one_sold","type_stats","warehouses" })
-     * @Groups({"type:read","type:write","product:read","billDetail:read"})
+     * @Groups({"type:read","type:write","product:read","billDetail:read","inventory_product:read"})
      */
     private $name;
 

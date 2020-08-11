@@ -37,7 +37,7 @@ final class ProductStockDataPersister implements ContextAwareDataPersisterInterf
                 ->setAvailable($available)
             ;
 
-            $product = $this->_entity_manager->getRepository(Product::class)->findOneByStock($data->getId());
+            $product = $this->_entity_manager->getRepository(Product::class)->findOneBy(array("stock" => $data->getId()));
             $movement = new ProductMovement();
             $movement
                     ->setProduct($product)

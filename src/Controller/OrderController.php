@@ -48,7 +48,7 @@ class OrderController extends AbstractController
     /**
      * @Rest\Post("/order")
      */
-    public function create(Request $request){
+    public function create(Request $request, ViewHandlerInterface $handler){
         $order = new Order(); 
         $code = "Order-".date('YmdHi');
         $em = $this->getDoctrine()->getManager();
@@ -66,7 +66,10 @@ class OrderController extends AbstractController
             }
             $em->persist($order);
             $em->flush();
-            return $order;
+            
+            $view = View::create();
+            $view->setData($order);
+            return $handler->handle($view);
         } else {
             return $form;
         }
