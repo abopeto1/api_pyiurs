@@ -348,7 +348,10 @@ class Delivery
     {
         $sellValue = 0;
         $filtered = $this->getProducts()->filter(function ($product) {
-            return $product->getMoveStatus() === 1 && !$product->getStock()->getAvailable();
+            return
+                $product->getMoveStatus() === 1 &&
+                !$product->getStock()->getAvailable()
+            ;
         });
 
         foreach ($filtered as $product) {
@@ -361,5 +364,20 @@ class Delivery
             }
         }
         return round($sellValue, 2);
+    }
+
+    /**
+     * @Groups({"delivery:read","delivery:read:item"})
+     */
+    public function getBenefitMarge(): ?float
+    {
+        $totalPat = $this->getPat();
+        $totalNetValue = $this->getNetValue();
+
+        $total = $totalNetValue - $totalPat;
+
+        $benefitMarge = $totalPat == 0 ? 0 : $total/$totalPat;
+
+        return round($benefitMarge * 100, 1);
     }
 }

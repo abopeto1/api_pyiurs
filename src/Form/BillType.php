@@ -20,7 +20,6 @@ class BillType extends AbstractType
             ->add('net')
             ->add('accompte')
             ->add('reste')
-            ->add('clerk')
             ->add('customer')
             ->add('billDetails',CollectionType::class,[
               'entry_type' => BillDetailsType::class,
@@ -28,7 +27,7 @@ class BillType extends AbstractType
               'error_bubbling' => false,
             ])
             ->add('typePaiement')
-            ->add('bill_reference')
+            ->add('billReference')
             ->add('operator')
         ;
     }

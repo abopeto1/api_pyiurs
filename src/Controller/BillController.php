@@ -155,7 +155,7 @@ class BillController extends Controller
           $bill->setNet($net);
 
           foreach ($bill->getBillDetails() as $billDetails) {
-            $billDetails->setSid($numero)->setBill($bill);
+            $billDetails->setBill($bill);
             $billDetails->setCreated(new \DateTime("Africa/Kinshasa"));
             // Set Bill Detail Point
             if($billDetails->getProduct()->getPv() - $billDetails->getNet() <= 2) {
@@ -212,7 +212,7 @@ class BillController extends Controller
         }
       } else {
         foreach ($bill->getBillDetails() as $billDetails) {
-          $billDetails->setCreated(new \DateTime())->setSid($numero)->setBill($bill);
+          $billDetails->setCreated(new \DateTime())->setBill($bill);
 
           // Set Bill Detail Point
           if($billDetails->getProduct()->getPv() - $billDetails->getNet() <= 2) {
