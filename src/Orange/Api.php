@@ -27,24 +27,24 @@ class Api
         $this->orangeClient = $orangeClient;
     }
 
-    public function postMessage(Customer $client)
+    public function postMessage(Customer $client, $message)
     {
-        $message = $client->getName(). ", Pyiurs Boutique vous souhaite la bienvenu(e), votre rendew vous est fixé à 16h00";
         $body["outboundSMSMessageRequest"]["address"] = "tel:+243". $client->getTelephone();
         $body["outboundSMSMessageRequest"]["outboundSMSTextMessage"]["message"] = $message;
         $body["outboundSMSMessageRequest"]["senderAddress"] = "tel:+" . self::PHONE_NUMBER;
+        $body["outboundSMSMessageRequest"]["senderName"] = "Pyiurs";
 
         $config = [
-            'body'    => json_encode($body),
+            'body'   => json_encode($body),
             "headers" => [
                 'Authorization' => 'Bearer ' . self::TOKEN,
                 'Accept'        => 'application/json',
-                'Content-Type'        => 'application/json',
+                'Content-Type'  => 'application/json',
             ]
         ];
         $uri = "/smsmessaging/v1/outbound/tel%3A%2B". self::PHONE_NUMBER ."/requests";
         $response = $this->orangeClient->post($uri, $config);
 
-        return $response;
+        return $response->getBody();
     }
 }

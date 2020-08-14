@@ -30,11 +30,13 @@ final class AppointmentDataPersister implements ContextAwareDataPersisterInterfa
             ->setCreated(new \DateTime())
             ->setStatus("ON_WAITING")
         ;
+        
         $this->_entity_manager->persist($data);
         $this->_entity_manager->flush();
-
+        
+        $message = $this->getMessage($data);
         // Sending the appointment sms
-        // $res = $this->orangeApi->postMessage($data->getCustomer());
+        $this->orangeApi->postMessage($data->getCustomer(), $message);
         return $data;
     }
 
@@ -45,7 +47,20 @@ final class AppointmentDataPersister implements ContextAwareDataPersisterInterfa
 
     private function setNumber($service)
     {
-        $numero = $service->getCodebarre(). date('YmjHis');
+        $numero = 'RDV'.$service->getCodebarre().$service->getId();
         return $numero;
+    }
+
+    public function getMessage(Appointment $appointment)
+    {
+        $customer = $appointment->getCustomer();
+
+        $message = 
+        $customer->getName(). 
+        ", Pyiurs Boutique vous souhaite la bienvenu(e), votre rendez vous est fixé à ".
+        $appointment->getPlanned()->format('H:i');
+
+        return $message;
+        
     }
 }

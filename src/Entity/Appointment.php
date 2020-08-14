@@ -76,7 +76,7 @@ class Appointment
     private $service;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=true)
      * @Groups({"appointment:read"})
      */
     private $code;
