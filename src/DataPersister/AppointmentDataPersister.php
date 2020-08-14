@@ -24,7 +24,7 @@ final class AppointmentDataPersister implements ContextAwareDataPersisterInterfa
 
     public function persist($data, array $context = [])
     {
-        $numero = $this->setNumber($data->getService());
+        $numero = $this->setNumber($data);
         $data
             ->setCode($numero)
             ->setCreated(new \DateTime())
@@ -45,9 +45,9 @@ final class AppointmentDataPersister implements ContextAwareDataPersisterInterfa
 
     }
 
-    private function setNumber($service)
+    private function setNumber($appointment)
     {
-        $numero = 'RDV'.$service->getCodebarre().$service->getId();
+        $numero = 'RDV'.$appointment->getService()->getCodebarre().$appointment->getId();
         return $numero;
     }
 
