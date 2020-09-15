@@ -25,7 +25,10 @@ final class InventoryProductDataPersister implements ContextAwareDataPersisterIn
 
     public function persist($data, array $context = [])
     {
-        if ($this->_request->getCurrentRequest()->getMethod() === 'PATCH') {
+        if (
+            $this->_request->getCurrentRequest()->getMethod() === 'PATCH' ||
+            $this->_request->getCurrentRequest()->getMethod() === 'PATCH'
+            ) {
             $data->setUpdated(new \DateTime());
         }
 

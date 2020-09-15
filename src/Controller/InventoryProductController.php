@@ -12,6 +12,7 @@ use FOS\RestBundle\View\View;
 use FOS\RestBundle\View\ViewHandlerInterface;
 use App\Entity\InventoryProduct;
 use App\Form\InventoryProductType;
+use App\Service\InventoryProductService;
 
 class InventoryProductController extends AbstractController
 {
@@ -41,6 +42,35 @@ class InventoryProductController extends AbstractController
     $view->setHeader('Access-Control-Allow-Origin', '*');
     return $handler->handle($view);
   }
+
+  /**
+   * get inventory_products
+   * @Rest\Get("/excel/inventories/{id}/inventory_products")
+   * @Rest\QueryParam(name="status")
+   * @Rest\QueryParam(name="types")
+   * 
+   */
+  public function getExcelFile(
+    ParamFetcher $paramFetcher, 
+    ViewHandlerInterface $handler, 
+    Request $request,
+    InventoryProductService $inventoryProductService
+  ){
+    $status = $paramFetcher->get('status');
+    $types = $paramFetcher->get('types');
+    $inventory_products = $this->getDoctrine()->getRepository(InventoryProduct::class)->findBy(array(
+      "status" => $status, "inventory" => $request->get('id'),
+    ));
+
+    if($status) {
+      return $inventoryProductService->getExcelFile($inventory_products, "Rapport Inventaire: Produits trouvés");
+    }
+    if($status == false){
+      return $inventoryProductService->getExcelFile($inventory_products, "Rapport Inventaire: Produits trouvés");
+    }
+    return $inventoryProductService->getExcelFile($inventory_products);
+  }
+
   /**
    * update a inventory_product
    * @Rest\Put("/inventory_product/{id}")

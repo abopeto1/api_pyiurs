@@ -12,6 +12,9 @@
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Annotation\ApiSubresource;
+use ApiPlatform\Core\Annotation\ApiFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -20,13 +23,23 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ApiResource(
+ *      normalizationContext={"groups"={"agent:read"}},
  *      subresourceOperations={
  *          "appointment_agent"={
  *              "method"="GET",
  *              "normalization_context"={"groups"={"appointment:read"}}
+ *          },
+ *          "user_agent_account"={
+ *              "method"="GET",
+ *              "normalization_context"={"groups"={"user:read"}}
  *          }
  *      }
  * )
+ * @ApiFilter(
+ *      SearchFilter::Class,
+ *      properties={
+ *          "user.id": "exact"
+ *      })
  * @ORM\Entity(repositoryClass="App\Repository\AgentRepository")
  */
 class Agent
@@ -36,26 +49,28 @@ class Agent
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      * @Serializer\Groups({"agent"})
-     * @Groups({"appointment:read"})
+     * @Groups({"agent:read","appointment:read","commission:read","user:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Serializer\Groups({"agent"})
-     * @Groups({"appointment:read"})
+     * @Groups({"agent:read","appointment:read","commission:read"})
      */
     private $name;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Serializer\Groups({"agent"})
+     * @Groups({"agent:read","appointment:read"})
      */
     private $lastname;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Serializer\Groups({"agent"})
+     * @Groups({"agent:read","appointment:read"})
      */
     private $fonction;
 
@@ -118,11 +133,24 @@ class Agent
      */
     private $appointments;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Commission", mappedBy="seller")
+     */
+    private $commissions;
+
+    /**
+     * @ApiSubresource
+     * @ORM\OneToOne(targetEntity="App\Entity\User", mappedBy="agent_account", cascade={"persist", "remove"})
+     * @Groups({"agent:read"})
+     */
+    private $user;
+
     public function __construct()
     {
         $this->credits = new ArrayCollection();
         $this->agentLoans = new ArrayCollection();
         $this->appointments = new ArrayCollection();
+        $this->commissions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -341,5 +369,101 @@ class Agent
         }
 
         return $this;
+    }
+
+    /**
+     * @return Collection|Commission[]
+     */
+    public function getCommissions(): Collection
+    {
+        return $this->commissions;
+    }
+
+    public function addCommission(Commission $commission): self
+    {
+        if (!$this->commissions->contains($commission)) {
+            $this->commissions[] = $commission;
+            $commission->setSeller($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCommission(Commission $commission): self
+    {
+        if ($this->commissions->contains($commission)) {
+            $this->commissions->removeElement($commission);
+            // set the owning side to null (unless already changed)
+            if ($commission->getSeller() === $this) {
+                $commission->setSeller(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): self
+    {
+        $this->user = $user;
+
+        // set (or unset) the owning side of the relation if necessary
+        $newAgent_account = null === $user ? null : $this;
+        if ($user->getAgentAccount() !== $newAgent_account) {
+            $user->setAgentAccount($newAgent_account);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @Groups({"agent:read"}) 
+     */
+    public function getMonthCommission(){
+        $date = new \DateTime();
+
+        if(!$this->getUser()){
+            return 0;
+        }
+
+        $bills = $this->getUser()->getBills()->filter(function($e) use ($date){
+            return $e->getCreated()->format('Ym') === $date->format('Ym');
+        });
+        $totalSell = 0;
+        
+        $thisCommission = $this->getCommissions()->filter(function($e) use ($date){
+            return $e->getMonth() == $date->format('Y-m');
+        })[0];
+
+        foreach($bills as $bill){
+            if($bill->getTypePaiement()->getId() === 2){
+                $totalSell += $bill->getAccompte();
+            } else {
+                $totalSell += $bill->getNet();
+            }
+        }
+        
+        if(!$thisCommission){
+            return 0;    
+        }
+
+        if(($totalSell / $thisCommission->getAmount()) < 0.5){
+            return 0;
+        }
+
+        if(
+            ($totalSell / $thisCommission->getAmount()) >= 0.5 
+            && 
+            ($totalSell / $thisCommission->getAmount()) <= 0.8){
+            return 30;
+        }
+        
+        if(($totalSell / $thisCommission->getAmount()) >= 0.8){
+            return round($totalSell/10, 0);
+        }
     }
 }

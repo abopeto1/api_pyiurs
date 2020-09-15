@@ -16,7 +16,8 @@ use GuzzleHttp\Client;
 
 class Api
 {
-    const URI_SMS = "/smsmessaging/v1/outbound/tel%3A%2B243899900151/requests";
+    // const URI_SMS = "/smsmessaging/v1/outbound/tel%3A%2B243899900151/requests";
+	const URI_SMS = "/smsmessaging/v1/outbound/tel:+243899900151/requests";
     const PHONE_NUMBER = "243899900151";
     const TOKEN = "ZgcyxKCVPdSbe0LGC09A1oGPlDKc";
 
@@ -32,7 +33,7 @@ class Api
         $body["outboundSMSMessageRequest"]["address"] = "tel:+243". $client->getTelephone();
         $body["outboundSMSMessageRequest"]["outboundSMSTextMessage"]["message"] = $message;
         $body["outboundSMSMessageRequest"]["senderAddress"] = "tel:+" . self::PHONE_NUMBER;
-        $body["outboundSMSMessageRequest"]["senderName"] = "Pyiurs";
+        // $body["outboundSMSMessageRequest"]["senderName"] = "Pyiurs";
 
         $config = [
             'body'   => json_encode($body),

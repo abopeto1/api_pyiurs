@@ -26,6 +26,9 @@ security:
         api_platform_test:
             pattern: ^/api
             security: false
+        excel_pdf:
+            pattern: ^/excel
+            security: false
         main:
             anonymous: ~ # lazy
             pattern: ^/

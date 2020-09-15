@@ -37,7 +37,7 @@ class Delivery
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"delivery:read","delivery:read:item"})
+     * @Groups({"delivery:read","delivery:read:item", "product:read"})
      */
     private $id;
 
@@ -46,7 +46,7 @@ class Delivery
      * 
      * @Assert\NotBlank
      * @ORM\Column(type="string", length=255)
-     * @Groups({"delivery:read","delivery:write","delivery:read:item"})
+     * @Groups({"delivery:read","delivery:write","delivery:read:item", "product:read"})
      */
     private $name;
 

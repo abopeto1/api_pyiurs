@@ -59,7 +59,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *          "type.segment.department": "exact",
  *          "codebarre": "iexact",
  *          "delivery": "exact",
- *          "moveStatus":"exact" ,
+ *          "moveStatus": "exact",
+ *          "warehouse": "exact"
  *      }
  * )
  * @ApiFilter(
@@ -279,6 +280,7 @@ class Product
     private $samples;
 
     /**
+     * @ApiSubresource
      * @ORM\ManyToOne(targetEntity="App\Entity\Delivery", inversedBy="products")
      */
     private $delivery;

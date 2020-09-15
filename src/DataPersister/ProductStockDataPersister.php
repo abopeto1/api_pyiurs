@@ -28,7 +28,10 @@ final class ProductStockDataPersister implements ContextAwareDataPersisterInterf
 
     public function persist($data, array $context = [])
     {
-        if ($this->_request->getCurrentRequest()->getMethod() === 'PATCH') {
+        if (
+            $this->_request->getCurrentRequest()->getMethod() === 'PATCH' || 
+            $this->_request->getCurrentRequest()->getMethod() === 'PUT'
+        ) {
             $qte = $data->getAddStock() + $data->getQte();
             $available = $qte > 0;
 

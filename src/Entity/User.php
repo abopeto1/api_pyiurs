@@ -1,17 +1,36 @@
 <?php
 
+/*
+ * This file is part of the API for Pyiurs Boutique POS.
+ *
+ * (c) Arnold Bopeto <abopeto1@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Annotation\ApiSubresource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
 use JMS\Serializer\Annotation as Serializer;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @ApiResource()
+ * @ApiResource(
+ *      normalizationContext={"groups"={"user:read"}},
+ *      subresourceOperations={
+ *          "user_agent"={
+ *              "method"="GET",
+ *              "normalization_context"={"groups"={"agent:read"}}
+ *          }
+ *      }
+ * )
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  */
 class User implements UserInterface
@@ -22,6 +41,7 @@ class User implements UserInterface
      * @ORM\Column(type="integer")
      * @Serializer\Groups({"list_bills","users","type_paiement",
      * "clotures","segments","cloture_month","service","auth_tokens","user"})
+     * @Groups({"user:read","agent:read"})
      */
     private $id;
 
@@ -34,6 +54,7 @@ class User implements UserInterface
     /**
      * @ORM\Column(type="json")
      * @Serializer\Groups({"auth_tokens"})
+     * @Groups({"user:read"})
      */
     private $roles = [];
 
@@ -53,6 +74,7 @@ class User implements UserInterface
      * @Assert\NotBlank
      * @Serializer\Groups({"list_bills","users","type_paiement","clotures","segments","cloture_month",
      * "service","auth_tokens","user"})
+     * @Groups({"user:read"})
      */
     private $name;
 
@@ -61,6 +83,7 @@ class User implements UserInterface
      * @Assert\NotBlank
      * @Serializer\Groups({"list_bills","users","type_paiement","clotures","cloture_month",
      * "service","auth_tokens","user"})
+     * @Groups({"user:read"})
      */
     private $lastname;
 
@@ -99,6 +122,13 @@ class User implements UserInterface
      * @Serializer\Groups({"users","user"})
      */
     private $total_sell_month;
+
+    /**
+     * @ApiSubresource
+     * @ORM\OneToOne(targetEntity="App\Entity\Agent", inversedBy="user", cascade={"persist", "remove"})
+     * @Groups("user:read")
+     */
+    private $agent_account;
 
     public function __construct()
     {
@@ -418,6 +448,18 @@ class User implements UserInterface
     public function setTotalSellMonth(int $total_sell_month): self
     {
         $this->total_sell_month = $total_sell_month;
+
+        return $this;
+    }
+
+    public function getAgentAccount(): ?Agent
+    {
+        return $this->agent_account;
+    }
+
+    public function setAgentAccount(?Agent $agent_account): self
+    {
+        $this->agent_account = $agent_account;
 
         return $this;
     }
