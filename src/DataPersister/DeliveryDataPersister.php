@@ -18,6 +18,7 @@ use App\Service\TypeService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Response;
 
 final class DeliveryDataPersister implements ContextAwareDataPersisterInterface
 {
@@ -46,13 +47,17 @@ final class DeliveryDataPersister implements ContextAwareDataPersisterInterface
            $data->setCreated(new \DateTime());
 
            // persist products
-           $i = 0;
+           $i = 1;
            if($data->getProducts())
            {
                foreach($data->getProducts() as $product)
                {
                     // Get Type
                     $type = $this->_typeService->getProductType($product->getPostType(), $product->getSegment(), $i);
+
+                    if($type instanceof Response){
+                        return $type;
+                    }
                     $product
                         ->setCreated(new \DateTime())
                         ->setMoveStatus(0)

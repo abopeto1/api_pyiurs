@@ -30,6 +30,7 @@ final class ProductDataPersister implements ContextAwareDataPersisterInterface
         if ($this->_request->getCurrentRequest()->getMethod() === 'POST') {
             $data
                 ->setCreated(new \DateTime());
+
             if($data->getType()->getSegment()->getDepartment()->getId() == 2){
                 $stock = new ProductStock();
                 $stock
@@ -42,6 +43,7 @@ final class ProductDataPersister implements ContextAwareDataPersisterInterface
                 ->setStock($stock)
                 ->setMoveStatus(1);
             }
+            
             if($data->getType()->getSegment()->getDepartment()->getId() == 3){
                 $data
                     ->setMoveStatus(1);

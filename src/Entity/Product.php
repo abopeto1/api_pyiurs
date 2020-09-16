@@ -39,7 +39,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *          },
  *          "delivery_product"={
  *              "method"="POST",
- *              "denormalization_context"={"groups"={"delivery_product:write"}},
+ *              "denormalization_context"={"groups"={"delivery:write"}},
  *          },
  *          "type_product"={
  *              "method"="GET",
@@ -233,7 +233,7 @@ class Product
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Warehouse", inversedBy="products")
      * @Serializer\Groups({"products","stock","product_one_sold","one_sold"})
-     * @Groups({"product:read","product:write"})
+     * @Groups({"product:read","product:write","delivery:write"})
      */
     private $warehouse;
 
@@ -288,7 +288,7 @@ class Product
     /**
      * @Groups({"delivery:write","inventory_product:read"})
      */
-    private $segment;
+    public $segment;
 
     /**
      * @Groups({"delivery:write"})
@@ -755,11 +755,13 @@ class Product
     }
     
     /**
-     * @Groups({"product:read"})
+     * @Groups({"product:read", "delivery:write"})
      */
     public function getSegment(): ?string
     {
-        return $this->getType()->getSegment()->getName();
+        if(!$this->getPostType()) return $this->getType()->getSegment()->getName();
+        
+        return $this->segment;
     }
 
     public function getPostType(): ?string
